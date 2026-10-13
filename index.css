@@ -578,7 +578,10 @@ section {
   line-height:1.9;color:var(--cream-white);
 }
 .footer-names{
-  margin-top:26px;font-size:.85rem;letter-spacing:.3em;text-transform:uppercase;color:var(--blue-light);
+  margin-top: 26px;
+  font-size: 20px;
+  letter-spacing:.3em;
+  color:var(--blue-light);
 }
 .footer-date{margin-top:8px;font-size:.78rem;color:rgba(255,253,248,.5);letter-spacing:.15em;}
 
