@@ -100,3 +100,72 @@ document.getElementById('closeSuccess').addEventListener('click', function(){
   successOverlay.classList.remove('show');
   statusMsg.className = 'status-msg';
 });
+
+/* ================================================================
+   PRENUP CIRCULAR GALLERY
+   ================================================================ */
+const prenupPhotos = [
+  {src:'QR Code/GCash.jpg', name:'Prenup 1'},
+  {src:'QR Code/MariBank.jpg', name:'Prenup 2'},
+  {src:'QR Code/BPI.jpg', name:'Prenup 3'},
+  {src:'QR Code/BDO.jpg', name:'Prenup 4'},
+  {src:'QR Code/GCash.jpg', name:'Prenup 5'},
+];
+const stage = document.getElementById('prenupStage');
+let order = [0,1,2,3,4]; // order[0] = front photo index
+
+function renderPrenup(){
+  stage.innerHTML = '';
+  const n = order.length;
+  order.forEach((photoIdx, pos)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'prenup-photo';
+    const img = document.createElement('img');
+    img.src = prenupPhotos[photoIdx].src;
+    img.alt = prenupPhotos[photoIdx].name;
+    wrap.appendChild(img);
+
+    // layout: pos 0 = front & centered; others fan out behind, blurred
+    const spread = 40; // px horizontal spread per step back
+    const scaleStep = 0.09;
+    const blurStep = 2.2;
+    const x = pos === 0 ? 0 : (pos % 2 === 1 ? 1 : -1) * (Math.ceil(pos/2)) * spread;
+    const y = pos * 10;
+    const scale = 1 - pos*scaleStep;
+    const blur = pos===0 ? 0 : Math.min(pos*blurStep, 8);
+    const z = n - pos;
+    const rotate = pos === 0 ? 0 : (pos % 2 === 1 ? -1 : 1) * (4+pos*1.5);
+
+    wrap.style.transform = `translate(-50%,-50%) translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+    wrap.style.filter = `blur(${blur}px)`;
+    wrap.style.opacity = pos===0 ? 1 : Math.max(0.45, 1 - pos*0.13);
+    wrap.style.zIndex = z;
+
+    wrap.addEventListener('click', ()=>{
+      if(pos === 0){
+        openLightbox(prenupPhotos[photoIdx].src);
+      } else {
+        // bring clicked photo to front
+        order = order.filter(i=>i!==photoIdx);
+        order.unshift(photoIdx);
+        renderPrenup();
+      }
+    });
+    stage.appendChild(wrap);
+  });
+}
+renderPrenup();
+
+// auto-rotate gently every few seconds
+setInterval(()=>{
+  const last = order.pop();
+  order.unshift(last);
+  renderPrenup();
+}, 4500);
+
+/* Lightbox */
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+function openLightbox(src){ lightboxImg.src = src; lightbox.classList.add('open'); }
+document.getElementById('lightboxClose').addEventListener('click', ()=>lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e)=>{ if(e.target===lightbox) lightbox.classList.remove('open'); });
